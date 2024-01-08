@@ -20,58 +20,52 @@ public class BoardDao {
 	
 	
 	public BoardDao() {
-		
-		try {
-			Context context = new InitialContext();
-			context.lookup("java:comp/env/jdbc/oracledb");
-		} catch (NamingException e) {
-			
-			e.printStackTrace();
-		}		
+	      
+	      try {
+	         Context context = new InitialContext();
+	         dataSource = (DataSource) context.lookup("java:comp/env/jdbc/oracledb");
+	      } catch (NamingException e) {
+	         // TODO Auto-generated catch block
+	         e.printStackTrace();
+	      }
+	      
+	   }
+
+
+	   public void write(String bname, String btitle, String bcontent) {
+	      
+	      Connection conn = null;
+	      PreparedStatement pstmt = null;
+	      
+	      try {
+	         conn = dataSource.getConnection();
+	         String sql = "insert into fboard(bnum, bname, btitle, bcontent, bhit) values(fboard_seq.nextval,?,?,?,0)";
+	         
+	         pstmt = conn.prepareStatement(sql);
+	         
+	         pstmt.setString(1, bname);
+	         pstmt.setString(2, btitle);
+	         pstmt.setString(3, bcontent);
+	         
+	         pstmt.executeUpdate();
+	         
+	      } catch (SQLException e) {         
+	         // TODO Auto-generated catch block
+	         e.printStackTrace();
+	      } finally {
+	         try {
+	            if(pstmt != null) {
+	               pstmt.close();
+	            }
+	            if(conn != null) {
+	               conn.close();
+	            }
+	         } catch(Exception e) {
+	            e.printStackTrace();
+	         }
+	            
+	      }
+	      
+	   }
+	   
 	}
-
-
-
-
-	@Autowired
-	public void write(String bname, String btitle, String bcontent) {
-		
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		
-		
-		try {
-			conn = dataSource.getConnection();
-			String sql = "insert into fboard(bid, bname, btitle, bcontent, bhit) values(fboard_seq.nextval,?,?,?,0)";
-			
-			conn.prepareStatement(sql);
-			
-			pstmt.setString(1, bname);
-			pstmt.setString(2, btitle);
-			pstmt.setString(3, bcontent);
-			
-			pstmt.executeUpdate();
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			try {
-			if(pstmt != null) {
-				pstmt.close();
-			}
-			if (conn != null) {
-				conn.close();
-			}
-			} catch(){
-				e.printStackTrace();
-			}
-		}
-			
-		
-	}
-	
-	
-	
-	
-}
